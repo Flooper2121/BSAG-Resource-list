@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Emory Black Student Athlete Group — Curated scholarships, fellowships, internships, and career programs." />
+  <title>BSAG Opportunity Resource List · Emory</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: #EDF0FA; color: #1A1D3C; -webkit-font-smoothing: antialiased; }
+    button { font-family: inherit; }
+    .hide-scroll::-webkit-scrollbar { display: none; }
+    .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+    #loading {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; gap: 16px;
+      font-family: 'Syne', sans-serif; font-size: 18px; color: #07103A;
+    }
+    #loading .bar-wrap { width: 200px; height: 4px; background: #E2E8F0; border-radius: 2px; overflow: hidden; }
+    #loading .bar { height: 100%; width: 40%; background: #D4AF37; border-radius: 2px; animation: slide 1.2s ease-in-out infinite; }
+    @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(600%); } }
+  </style>
+</head>
+<body>
+
+  <div id="loading">
+    <span><span style="color:#D4AF37;font-weight:800;">BSAG</span> Resource List</span>
+    <div class="bar-wrap"><div class="bar"></div></div>
+  </div>
+
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect } = React;
+    document.getElementById('loading').style.display = 'none';
+
+
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const CATS = [
+  { key: "Cross-Industry",    label: "Cross-Industry",        color: "#1D4ED8", light: "#EFF6FF" },
+  { key: "Business & Finance",label: "Business & Finance",    color: "#047857", light: "#ECFDF5" },
+  { key: "Technology & STEM", label: "Tech & STEM",           color: "#6D28D9", light: "#F5F3FF" },
+  { key: "Healthcare",        label: "Healthcare & Research", color: "#B91C1C", light: "#FFF1F2" },
+  { key: "Law & Policy",      label: "Law & Policy",          color: "#B45309", light: "#FFFBEB" },
+  { key: "Media & Sports",    label: "Media & Sports",        color: "#0E7490", light: "#ECFEFF" },
+];
+
+const TYPES = ["Scholarship", "Fellowship", "Internship", "Conference", "Program", "Competition"];
+
+const TC = {
+  Scholarship: { bg: "#FEF9C3", tx: "#854D0E" },
+  Fellowship:  { bg: "#F3E8FF", tx: "#6B21A8" },
+  Internship:  { bg: "#DCFCE7", tx: "#166534" },
+  Conference:  { bg: "#DBEAFE", tx: "#1E3A8A" },
+  Program:     { bg: "#FDF2F8", tx: "#831843" },
+  Competition: { bg: "#FFE4E6", tx: "#881337" },
+};
+
+// ─── Seed Data (86 Resources) ─────────────────────────────────────────────────
+const DATA = [
+  // ── CROSS-INDUSTRY ──
+  { id:"c01", cat:"Cross-Industry", name:"BravenX", url:"https://braven.org/bravenx/", target:"College students, especially first-generation and underrepresented students", desc:"A virtual fellowship and career access program.", type:"Fellowship", notes:"" },
+  { id:"c02", cat:"Cross-Industry", name:"Bank of America Student Leaders", url:"https://about.bankofamerica.com/en/making-an-impact/student-leaders", target:"Recent high school graduates and early college students", desc:"A paid leadership and nonprofit internship program combining workforce preparation with civic impact experience.", type:"Internship", notes:"" },
+  { id:"c03", cat:"Cross-Industry", name:"UNCF Scholarships, Programs, Internships & Fellowships", url:"https://uncf.org/scholarships", target:"Students nationwide, especially Black and HBCU students", desc:"A major opportunity hub for scholarships, internships, and fellowships.", type:"Scholarship", notes:"" },
+  { id:"c04", cat:"Cross-Industry", name:"Thurgood Marshall College Fund Scholarships", url:"https://tmcf.org/scholarships/", target:"HBCU and PBI students", desc:"Merit and need-based awards tied to education and career preparation.", type:"Scholarship", notes:"" },
+  { id:"c05", cat:"Cross-Industry", name:"The Gates Scholarship", url:"https://www.thegatesscholarship.org/", target:"High school seniors from low-income households", desc:"A highly selective scholarship and leadership program.", type:"Scholarship", notes:"" },
+  { id:"c06", cat:"Cross-Industry", name:"Dell Scholars", url:"https://www.dellscholars.org/", target:"Students from low-income backgrounds", desc:"Scholarship and college-to-career support program.", type:"Scholarship", notes:"" },
+  { id:"c07", cat:"Cross-Industry", name:"Hispanic Scholarship Fund Scholar Program", url:"https://www.hsf.net/scholarship", target:"Students of Hispanic heritage", desc:"Scholarship and professional development program.", type:"Scholarship", notes:"" },
+  { id:"c08", cat:"Cross-Industry", name:"APIA Scholars", url:"https://apiascholars.org/", target:"Asian American, Native Hawaiian, and Pacific Islander students", desc:"Scholarship and student resources hub.", type:"Scholarship", notes:"" },
+  { id:"c09", cat:"Cross-Industry", name:"American Indian College Fund Scholarships", url:"https://collegefund.org/students/scholarships/our-scholarships/", target:"American Indian and Alaska Native students", desc:"Scholarship and student support program.", type:"Scholarship", notes:"" },
+  { id:"c10", cat:"Cross-Industry", name:"Cobell Scholarship", url:"https://cobellscholar.org/", target:"Enrolled members of federally recognized Tribes or Alaska Native corporations", desc:"Scholarship and Indigenous student support.", type:"Scholarship", notes:"" },
+  { id:"c11", cat:"Cross-Industry", name:"Princeton Prize in Race Relations", url:"https://pprize.princeton.edu/front", target:"High school students", desc:"Leadership and recognition scholarship.", type:"Scholarship", notes:"" },
+  { id:"c12", cat:"Cross-Industry", name:"Echoing Green Fellowship", url:"https://echoinggreen.org/fellowship/", target:"Early-stage social innovators, including students and recent graduates", desc:"Social impact and entrepreneurship fellowship.", type:"Fellowship", notes:"" },
+
+  // ── BUSINESS & FINANCE ──
+  { id:"b01", cat:"Business & Finance", name:"Goldman Sachs Possibilities Series", url:"https://www.goldmansachs.com/careers/students/programs-and-internships/americas/possibilities-series", target:"First-year undergraduates", desc:"Exploratory program for early college students.", type:"Program", notes:"" },
+  { id:"b02", cat:"Business & Finance", name:"Goldman Sachs Market Madness HBCU Possibilities Program", url:"https://www.goldmansachs.com/pressroom/press-releases/2024/fourth-annual-market-madness-competition", target:"Students at participating HBCUs", desc:"Business and finance competition program.", type:"Competition", notes:"" },
+  { id:"b03", cat:"Business & Finance", name:"Deloitte Discovery Internship", url:"https://www.deloitte.com/us/en/careers/internships.html", target:"Early college students", desc:"Introductory internship program.", type:"Internship", notes:"" },
+  { id:"b04", cat:"Business & Finance", name:"Deloitte National Leadership Conference", url:"https://www.deloitte.com/us/en/careers/join-deloitte/deloitte-national-leadership-conference.html", target:"Sophomores and juniors", desc:"Leadership development conference.", type:"Conference", notes:"" },
+  { id:"b05", cat:"Business & Finance", name:"EY Launch Internship", url:"https://www.ey.com/en_us/careers/student-entry-level-programs", target:"Underrepresented sophomores or juniors", desc:"Internship program for diverse students.", type:"Internship", notes:"" },
+  { id:"b06", cat:"Business & Finance", name:"McKinsey Sophomore Summer Business Analyst", url:"https://www.mckinsey.com/careers/life-at-mckinsey/our-culture-and-communities/mckinsey-black-network/opportunities-to-meet-us", target:"Underrepresented undergraduate sophomores", desc:"Consulting internship program.", type:"Internship", notes:"" },
+  { id:"b07", cat:"Business & Finance", name:"Bain Building Entrepreneurial Leaders (BEL)", url:"https://www.bain.com/careers/work-with-us/internships-programs/building-entrepreneurial-leaders/", target:"Underrepresented undergraduates", desc:"Entrepreneurial leadership program.", type:"Program", notes:"" },
+  { id:"b08", cat:"Business & Finance", name:"Project Destined", url:"https://projectdestined.com/", target:"High school and college students", desc:"Commercial real estate and business program.", type:"Program", notes:"" },
+  { id:"b09", cat:"Business & Finance", name:"ULI Hines Student Competition", url:"https://americas.uli.org/programs/awards-competitions/hines-student-design-competition-americas/", target:"Graduate and select 4th-year undergraduate multidisciplinary teams", desc:"Real estate and urban design competition.", type:"Competition", notes:"" },
+  { id:"b10", cat:"Business & Finance", name:"CREW Network Foundation College Scholarships", url:"https://crewnetwork.org/crew-network-foundation/college-scholarships", target:"Women pursuing commercial real estate careers", desc:"Scholarship for women in real estate.", type:"Scholarship", notes:"" },
+  { id:"b11", cat:"Business & Finance", name:"Black Ambition Prize", url:"https://blackambitionprize.com/the-black-ambition-prize/", target:"Underrepresented founders", desc:"Entrepreneurship pitch competition and funding.", type:"Competition", notes:"" },
+  { id:"b12", cat:"Business & Finance", name:"Black Ambition HBCU Pre-Accelerator", url:"https://blackambitionprize.com/hbcu-prize-an-accelerator-program/", target:"HBCU-affiliated aspiring founders", desc:"Startup accelerator program.", type:"Program", notes:"" },
+
+  // ── TECHNOLOGY & STEM ──
+  { id:"t01", cat:"Technology & STEM", name:"ColorStack", url:"https://www.colorstack.org/", target:"Black & Latinx CS students", desc:"Tech career access and community support.", type:"Program", notes:"" },
+  { id:"t02", cat:"Technology & STEM", name:"Code2040", url:"https://www.code2040.org/", target:"Black & Latinx tech students", desc:"Tech fellowship and career development.", type:"Fellowship", notes:"" },
+  { id:"t03", cat:"Technology & STEM", name:"Break Through Tech AI Program", url:"https://www.breakthroughtech.org/programs/the-ai-program/", target:"Undergraduates", desc:"AI skills and mentorship program.", type:"Program", notes:"" },
+  { id:"t04", cat:"Technology & STEM", name:"Google STEP", url:"https://www.google.com/about/careers/applications/buildyourfuture/programs/step", target:"Early CS undergrads", desc:"Software engineering internship for early college students.", type:"Internship", notes:"" },
+  { id:"t05", cat:"Technology & STEM", name:"Microsoft Explore", url:"https://careers.microsoft.com/v2/global/en/exploremicrosoft", target:"1st & 2nd-year college students", desc:"Exploratory tech internship program.", type:"Internship", notes:"" },
+  { id:"t06", cat:"Technology & STEM", name:"AI4ALL Ignite", url:"https://ai-4-all.org/ai4all-ignite/", target:"Undergraduates interested in AI", desc:"AI education and career accelerator.", type:"Program", notes:"" },
+  { id:"t07", cat:"Technology & STEM", name:"Stanford AI4ALL", url:"https://ai4all.spcs.stanford.edu/", target:"High school students", desc:"AI education program for high schoolers.", type:"Program", notes:"" },
+  { id:"t08", cat:"Technology & STEM", name:"Black in AI ELAI Grad Prep Program", url:"https://www.blackinai.org/our-work/emerging-leaders-in-ai-elai-grad-prep-program", target:"Individuals of African descent preparing for AI grad studies", desc:"Graduate school preparation for AI researchers.", type:"Program", notes:"" },
+  { id:"t09", cat:"Technology & STEM", name:"NSBE Annual Convention", url:"https://convention.nsbe.org/", target:"Black engineering students & professionals", desc:"National convention for the National Society of Black Engineers.", type:"Conference", notes:"" },
+  { id:"t10", cat:"Technology & STEM", name:"SHPE National Convention", url:"https://shpe.org/engage/events/national-convention/", target:"Hispanic STEM students & professionals", desc:"National convention for the Society of Hispanic Professional Engineers.", type:"Conference", notes:"" },
+  { id:"t11", cat:"Technology & STEM", name:"GEM Fellowship", url:"https://www.gemfellowship.org/gem-fellowship-program/", target:"Graduate engineering/science students", desc:"Fellowship supporting underrepresented students in STEM graduate programs.", type:"Fellowship", notes:"" },
+  { id:"t12", cat:"Technology & STEM", name:"NACME Scholarships", url:"https://www.nacme.org/nacme-scholarships", target:"Engineering & CS students", desc:"Scholarships for minority engineering students.", type:"Scholarship", notes:"" },
+  { id:"t13", cat:"Technology & STEM", name:"Last Mile Education Fund", url:"https://www.lastmile-ed.org/", target:"Financially vulnerable upper-level STEM students", desc:"Financial support for tech and engineering students nearing graduation.", type:"Scholarship", notes:"" },
+  { id:"t14", cat:"Technology & STEM", name:"Great Minds in STEM Scholarships", url:"https://greatmindsinstem.org/gmis-scholarship-application/gmis-scholarships/", target:"Underserved STEM students", desc:"Scholarships for Hispanic and underserved STEM students.", type:"Scholarship", notes:"" },
+  { id:"t15", cat:"Technology & STEM", name:"BEYA STEM Conference", url:"https://ccgmag.com/mpage/beya-home", target:"Underrepresented STEM students & professionals", desc:"Black Enterprise STEM Conference and career fair.", type:"Conference", notes:"" },
+
+  // ── HEALTHCARE & RESEARCH ──
+  { id:"h01", cat:"Healthcare", name:"Summer Health Professions Education Program (SHPEP)", url:"https://www.shpep.org/", target:"Early college students", desc:"Summer enrichment program focused on improving access to health professions.", type:"Program", notes:"" },
+  { id:"h02", cat:"Healthcare", name:"Health Career Connection", url:"https://healthcareerconnection.org/students-aspiring-health-professionals/", target:"Undergraduate students", desc:"Internships for aspiring health and public health professionals.", type:"Internship", notes:"" },
+  { id:"h03", cat:"Healthcare", name:"CDC John R. Lewis Undergraduate Public Health Scholars Program", url:"https://www.cdc.gov/minority-health/student-programs/internships-fellowships.html", target:"Undergraduates", desc:"Public health scholarship and internship program.", type:"Program", notes:"" },
+  { id:"h04", cat:"Healthcare", name:"NIH Undergraduate Scholarship Program", url:"https://www.training.nih.gov/research-training/pb/ugsp/", target:"Undergraduates from disadvantaged backgrounds", desc:"Scholarship and summer research program at NIH.", type:"Scholarship", notes:"" },
+  { id:"h05", cat:"Healthcare", name:"NIH Summer Internship Program", url:"https://www.training.nih.gov/research-training/pb/sip/", target:"High school, college, and graduate students", desc:"Summer biomedical research internships.", type:"Internship", notes:"" },
+  { id:"h06", cat:"Healthcare", name:"National Medical Fellowships Scholarships and Awards", url:"https://nmfonline.org/scholarships-programs/scholarships-and-awards/", target:"Underrepresented medical students", desc:"Financial support for students in healthcare professions.", type:"Scholarship", notes:"" },
+  { id:"h07", cat:"Healthcare", name:"Amgen Scholars", url:"https://amgenscholars.com/", target:"Undergraduates", desc:"Summer research program in science and biotechnology.", type:"Program", notes:"" },
+  { id:"h08", cat:"Healthcare", name:"Leadership Alliance SR-EIP", url:"https://theleadershipalliance.org/summer-research-early-identification-program", target:"Undergraduates", desc:"Summer research and early identification program.", type:"Program", notes:"" },
+  { id:"h09", cat:"Healthcare", name:"McNair Postbaccalaureate Achievement Program", url:"https://www.ed.gov/grants-and-programs/grants-higher-education/federal-trio-programs/ronald-e-mcnair-postbaccalaureate-achievement-program-84217a", target:"First-generation/low-income undergrads", desc:"Preparation for doctoral studies through research.", type:"Program", notes:"" },
+  { id:"h10", cat:"Healthcare", name:"ABRCMS", url:"https://abrcms.org/", target:"Minority students in STEM/biomedical sciences", desc:"Annual Biomedical Research Conference for Minoritized Scientists.", type:"Conference", notes:"" },
+  { id:"h11", cat:"Healthcare", name:"SACNAS NDiSTEM Conference", url:"https://www.sacnas.org/conference", target:"Chicano/Hispanic and Native American STEM students", desc:"National Diversity in STEM Conference.", type:"Conference", notes:"" },
+  { id:"h12", cat:"Healthcare", name:"NSF Research Experiences for Undergraduates (REU)", url:"https://www.nsf.gov/funding/initiatives/reu", target:"Undergraduates", desc:"Research opportunities across various NSF-funded institutions.", type:"Program", notes:"" },
+  { id:"h13", cat:"Healthcare", name:"ORISE Undergraduate STEM Internships & Fellowships", url:"https://orise.orau.gov/internships-fellowships/undergraduates.html", target:"Undergraduates", desc:"STEM internships and fellowships at federal agencies.", type:"Fellowship", notes:"" },
+  { id:"h14", cat:"Healthcare", name:"Public Health AmeriCorps", url:"https://chronicdisease.org/cahc/public-health-americorps/", target:"Public health professionals and students", desc:"Service program supporting public health needs.", type:"Program", notes:"" },
+
+  // ── LAW & POLICY ──
+  { id:"l01", cat:"Law & Policy", name:"SEO Law Fellowship", url:"https://www.seo-usa.org/law/our-program/fellowship/", target:"Pre-law students", desc:"Fellowship providing academic and career support for future law students.", type:"Fellowship", notes:"" },
+  { id:"l02", cat:"Law & Policy", name:"SEO Law Catalyst", url:"https://www.seo-usa.org/law/our-program/catalyst/", target:"Pre-law students", desc:"Program assisting with law school admissions and LSAT prep.", type:"Program", notes:"" },
+  { id:"l03", cat:"Law & Policy", name:"PPIA Junior Summer Institute", url:"https://www.ppiaprogram.org/JSI", target:"College juniors", desc:"Summer program preparing students for advanced degrees in public policy.", type:"Program", notes:"" },
+  { id:"l04", cat:"Law & Policy", name:"Charles B. Rangel International Affairs Summer Enrichment Program", url:"https://rangelprogram.org/summer-enrichment-program/", target:"Undergraduates", desc:"Summer program focusing on international affairs.", type:"Program", notes:"" },
+  { id:"l05", cat:"Law & Policy", name:"Thomas R. Pickering Foreign Affairs Graduate Fellowship", url:"https://careers.state.gov/interns-fellows/foreign-service-fellowships/thomas-r-pickering-foreign-affairs-graduate-fellowship-program/", target:"Graduate students", desc:"Fellowship preparing students for Foreign Service careers.", type:"Fellowship", notes:"" },
+  { id:"l06", cat:"Law & Policy", name:"Truman Scholarship", url:"https://www.truman.gov/apply", target:"College juniors", desc:"Scholarship for students pursuing careers in public service.", type:"Scholarship", notes:"" },
+  { id:"l07", cat:"Law & Policy", name:"Congressional Black Caucus Foundation Internships", url:"https://www.cbcfinc.org/programs/internships/", target:"Undergraduates and recent graduates", desc:"Internships providing experience in the legislative process.", type:"Internship", notes:"" },
+  { id:"l08", cat:"Law & Policy", name:"CBCF Leadership Institute", url:"https://www.cbcfinc.org/programs/leadership-institute/", target:"College students", desc:"Leadership development and policy training.", type:"Program", notes:"" },
+  { id:"l09", cat:"Law & Policy", name:"CHCI Congressional Internship Program", url:"https://chci.org/programs/congressional-internship-program/", target:"Hispanic college students", desc:"Congressional internships for emerging leaders.", type:"Internship", notes:"" },
+  { id:"l10", cat:"Law & Policy", name:"Udall Undergraduate Scholarship", url:"https://www.udall.gov/ourprograms/scholarship/scholarship", target:"College sophomores and juniors", desc:"Scholarship for leadership in environmental or Native American issues.", type:"Scholarship", notes:"" },
+  { id:"l11", cat:"Law & Policy", name:"White House HBCU Scholar Recognition Program", url:"https://sites.ed.gov/whhbcu/whihbcu-competitiveness-scholars/", target:"HBCU students", desc:"Recognition program for outstanding HBCU students.", type:"Program", notes:"" },
+  { id:"l12", cat:"Law & Policy", name:"ABA Judicial Intern Opportunity Program (JIOP)", url:"https://www.americanbar.org/groups/litigation/about/awards-initiatives/jiop/", target:"Law students", desc:"Internship program placing diverse law students with judges.", type:"Internship", notes:"" },
+  { id:"l13", cat:"Law & Policy", name:"Teach For America Ignite", url:"https://www.teachforamerica.org/ignite", target:"College students", desc:"Fellowship focused on educational equity and tutoring.", type:"Fellowship", notes:"" },
+  { id:"l14", cat:"Law & Policy", name:"Bonner Program", url:"https://www.bonner.org/the-bonner-program", target:"College students", desc:"Community service and leadership program.", type:"Program", notes:"" },
+  { id:"l15", cat:"Law & Policy", name:"City Year AmeriCorps", url:"https://www.cityyear.org/about/americorps/", target:"Young adults (18–25)", desc:"Service program focused on student success in systemically under-resourced schools.", type:"Program", notes:"" },
+
+  // ── MEDIA & SPORTS ──
+  { id:"m01", cat:"Media & Sports", name:"Emma Bowen Foundation Fellows Program", url:"https://www.emmabowenfoundation.org/", target:"Students of color interested in media/tech", desc:"Multi-year internships in media and technology.", type:"Fellowship", notes:"" },
+  { id:"m02", cat:"Media & Sports", name:"T. Howard Foundation Internship Program", url:"https://www.t-howard.org/students/", target:"Diverse students", desc:"Internships in the media and entertainment industry.", type:"Internship", notes:"" },
+  { id:"m03", cat:"Media & Sports", name:"IRTS Summer Fellowship", url:"https://irtsfoundation.org/academic-programs/irts-summer-fellowship-program/", target:"College juniors, seniors, and graduate students", desc:"Media fellowship providing access and education.", type:"Fellowship", notes:"" },
+  { id:"m04", cat:"Media & Sports", name:"Sports Journalism Institute", url:"https://www.sportsjournalisminstitute.org/", target:"College students", desc:"Training program for aspiring sports journalists.", type:"Program", notes:"" },
+  { id:"m05", cat:"Media & Sports", name:"NABJ Convention and Career Fair", url:"https://nabjonline.org/event/2025-nabj-convention-and-career-fair/", target:"Black journalists and media professionals", desc:"National convention and career fair.", type:"Conference", notes:"" },
+  { id:"m06", cat:"Media & Sports", name:"MAIP (Multicultural Advertising Internship Program)", url:"https://foundation.aaaa.org/interested-students.html", target:"Diverse college students", desc:"Internship program in advertising and marketing.", type:"Internship", notes:"" },
+  { id:"m07", cat:"Media & Sports", name:"NBCU Academy", url:"https://nbcuacademy.com/", target:"Students interested in journalism and media", desc:"Training and education program by NBCUniversal.", type:"Program", notes:"" },
+  { id:"m08", cat:"Media & Sports", name:"AAJA Voices", url:"https://voices.aaja.org/", target:"Asian American and Pacific Islander student journalists", desc:"Multimedia journalism training fellowship.", type:"Fellowship", notes:"" },
+  { id:"m09", cat:"Media & Sports", name:"NAHJ Conference and Expo", url:"https://nahj.org/event/nahj-conference-expo-new-orleans-2026/", target:"Hispanic journalists", desc:"National conference and expo for Hispanic journalists.", type:"Conference", notes:"" },
+  { id:"m10", cat:"Media & Sports", name:"NAHJ Student Project", url:"https://nahj.org/student-project/", target:"Hispanic student journalists", desc:"Newsroom training program during the NAHJ conference.", type:"Program", notes:"" },
+  { id:"m11", cat:"Media & Sports", name:"ADCOLOR FUTURES", url:"https://adcolor.org/futures/", target:"Young professionals in creative industries", desc:"Mentorship and leadership program for diverse young professionals.", type:"Program", notes:"" },
+  { id:"m12", cat:"Media & Sports", name:"HBCU in LA Internship Program", url:"https://eicop.org/", target:"HBCU students", desc:"Internships in the entertainment industry in Los Angeles.", type:"Internship", notes:"" },
+  { id:"m13", cat:"Media & Sports", name:"NCAA Career in Sports Forum", url:"https://www.ncaa.org/sports/2013/11/21/career-in-sports-forum.aspx", target:"Student-athletes", desc:"Forum exploring careers in sports.", type:"Conference", notes:"" },
+  { id:"m14", cat:"Media & Sports", name:"NCAA Emerging Leaders Seminar", url:"https://www.ncaa.org/sports/2013/11/21/ncaa-emerging-leaders-seminar.aspx", target:"Graduate assistants and interns", desc:"Professional development seminar for careers in college sports.", type:"Conference", notes:"" },
+  { id:"m15", cat:"Media & Sports", name:"NCAA Impact Forum", url:"https://www.ncaa.org/sports/2025/7/24/ncaa-impact-forum.aspx", target:"Student-athletes and administrators", desc:"Forum focused on impactful leadership in sports.", type:"Conference", notes:"" },
+  { id:"m16", cat:"Media & Sports", name:"Black Sports Business Academy", url:"https://www.thebsba.com/", target:"Students interested in sports business", desc:"Academy providing education and networking in the sports industry.", type:"Program", notes:"" },
+  { id:"m17", cat:"Media & Sports", name:"WISE (Women in Sports and Events)", url:"https://www.wiseworks.org/", target:"Women in the sports industry", desc:"Networking and professional development for women in sports.", type:"Program", notes:"" },
+  { id:"m18", cat:"Media & Sports", name:"NBA HBCU Fellowship", url:"https://nbafoundation.nba.com/hbcu-fellowship/", target:"HBCU students", desc:"Fellowship providing career opportunities within the NBA.", type:"Fellowship", notes:"" },
+
+  // ── ADDED FROM SCREENSHOTS ──
+  // Business & Finance
+  { id:"b13", cat:"Business & Finance", name:"NABA (National Association of Black Accountants)", url:"https://www.nabainc.org/", target:"Black accounting, finance, and business students", desc:"Scholarships, annual conference, networking, and mentorship for Black accounting and finance professionals and students.", type:"Program", notes:"" },
+  { id:"b14", cat:"Business & Finance", name:"Management Leadership for Tomorrow (MLT)", url:"https://mlt.org/", target:"Black, Latinx, and Native American undergraduates and MBA candidates", desc:"Intensive career prep program with coaching, recruiting access, and professional network building for underrepresented students.", type:"Program", notes:"" },
+  { id:"b15", cat:"Business & Finance", name:"SEO Career Program", url:"https://www.seo-usa.org/career/", target:"Underrepresented college students in finance and business", desc:"Career development program connecting diverse undergrads with top finance, consulting, and corporate internship opportunities.", type:"Internship", notes:"" },
+  { id:"b16", cat:"Business & Finance", name:"Blackstone Launchpad", url:"https://www.blackstonelaunchpad.org/", target:"College students interested in entrepreneurship", desc:"University-based entrepreneurship program providing mentorship, community, and resources for student founders.", type:"Program", notes:"" },
+  { id:"b17", cat:"Business & Finance", name:"Scholars of Finance", url:"https://scholarsoffinance.org/", target:"Underrepresented college students interested in finance", desc:"Financial literacy and professional mentorship program connecting diverse students to the finance industry.", type:"Program", notes:"" },
+  { id:"b18", cat:"Business & Finance", name:"Girls Who Invest", url:"https://www.girlswhoinvest.org/", target:"Women pursuing careers in investment management", desc:"Summer intensive and fellowship program educating women on investment management and preparing them for careers in the industry.", type:"Fellowship", notes:"" },
+  { id:"b19", cat:"Business & Finance", name:"CREN (Collegiate Real Estate Network)", url:"https://www.crenweb.org/", target:"College students interested in real estate", desc:"National network providing real estate education, events, and career resources for collegiate students.", type:"Program", notes:"" },
+  { id:"b20", cat:"Business & Finance", name:"Diversity on Wall Street", url:"https://www.diversityonwallstreet.org/", target:"Underrepresented college students in finance", desc:"Annual summit and career fair connecting diverse students with leading financial services and investment firms.", type:"Conference", notes:"" },
+  { id:"b21", cat:"Business & Finance", name:"LEAD for Diversity", url:"https://www.leadfordiversity.org/", target:"Black, Latinx, and underrepresented undergraduates in business", desc:"Multi-day leadership conference connecting underrepresented students with top firms for internship and full-time recruiting opportunities.", type:"Conference", notes:"" },
+  // Technology & STEM
+  { id:"t16", cat:"Technology & STEM", name:"Blacks in Technology (BIT)", url:"https://www.blacksintechnology.net/", target:"Black students and professionals in tech", desc:"Community, events, and career resources supporting Black technologists and students entering the tech industry.", type:"Program", notes:"" },
+  // Cross-Industry
+  { id:"c13", cat:"Cross-Industry", name:"ALPFA (Association of Latino Professionals For America)", url:"https://www.alpfa.org/", target:"Latino undergraduate and graduate students across all industries", desc:"Career development, scholarships, and internship access for Latino professionals and students across all industries.", type:"Program", notes:"" },
+  // Law & Policy
+  { id:"l16", cat:"Law & Policy", name:"Education Pioneers Fellowship", url:"https://educationpioneers.org/", target:"Graduate and undergraduate students interested in education sector careers", desc:"Fellowship placing high-potential individuals in strategic and leadership roles at leading education reform organizations.", type:"Fellowship", notes:"" },
+  // ── MANUALLY ADDED ──
+  // Business & Finance
+  { id:"b22", cat:"Business & Finance", name:"BLK Capital Management", url:"https://www.blkcapitalmanagement.org/", target:"Underrepresented college students interested in finance and investment management", desc:"Finance-focused program providing underrepresented students with exposure to investment management, capital markets, and professional development.", type:"Program", notes:"" },
+  { id:"b23", cat:"Business & Finance", name:"BLK Consulting Group", url:"https://www.blkconsultinggroup.org/", target:"Underrepresented undergraduates interested in consulting", desc:"Selective global BA program training underrepresented students in client discovery, case analysis, and structured problem solving. 50 students selected globally.", type:"Fellowship", notes:"" },
+  { id:"b24", cat:"Business & Finance", name:"BlackGen Capital", url:"https://www.blackgencapital.com/", target:"Black and underrepresented students interested in finance and investing", desc:"Finance and investment program building the next generation of Black finance professionals through education, mentorship, and industry exposure.", type:"Program", notes:"Verify URL before sharing" },
+  // Media & Sports
+  { id:"m19", cat:"Media & Sports", name:"Make a Play Foundation", url:"https://makeaplayfoundation.com/", target:"Student-athletes and youth athletes", desc:"Foundation supporting student-athletes through mentorship, career development, and community programming.", type:"Program", notes:"" },
+];
+
+const EMPTY = { name:"", url:"", target:"", desc:"", notes:"", cat:"Cross-Industry", type:"Program" };
+
+// ─── Component ────────────────────────────────────────────────────────────────
+function BSAGResources() {
+  const [all,       setAll]      = useState(DATA);
+  const [ready,     setReady]    = useState(false);
+  const [activeCat, setCat]      = useState("All");
+  const [activeType,setType]     = useState("All");
+  const [q,         setQ]        = useState("");
+  const [modal,     setModal]    = useState(null); // null | 'add' | 'edit' | 'del'
+  const [form,      setForm]     = useState(EMPTY);
+  const [editId,    setEditId]   = useState(null);
+  const [delId,     setDelId]    = useState(null);
+  const [toast,     setToast]    = useState(null);
+
+  // Load persisted data — merges any new seed entries not yet in storage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("bsag-opps");
+      if (raw) {
+        const stored = JSON.parse(raw);
+        const storedIds = new Set(stored.map(x => x.id));
+        const newItems = DATA.filter(x => !storedIds.has(x.id));
+        setAll(newItems.length > 0 ? [...stored, ...newItems] : stored);
+      }
+    } catch {}
+    setReady(true);
+  }, []);
+
+  // Save on change
+  useEffect(() => {
+    if (!ready) return;
+    try { localStorage.setItem("bsag-opps", JSON.stringify(all)); } catch {}
+  }, [all, ready]);
+
+  const flash = (msg, v = "ok") => {
+    setToast({ msg, v });
+    setTimeout(() => setToast(null), 2800);
+  };
+
+  // Filtering
+  const filtered = all.filter(r => {
+    if (activeCat !== "All" && r.cat !== activeCat) return false;
+    if (activeType !== "All" && r.type !== activeType) return false;
+    if (q) {
+      const s = q.toLowerCase();
+      return r.name.toLowerCase().includes(s) ||
+             r.target.toLowerCase().includes(s) ||
+             r.desc.toLowerCase().includes(s) ||
+             (r.notes || "").toLowerCase().includes(s);
+    }
+    return true;
+  });
+
+  const catMeta = (key) => CATS.find(c => c.key === key) || { color:"#6B7280", light:"#F9FAFB" };
+
+  // CRUD
+  const openAdd = () => {
+    setForm({ ...EMPTY, cat: activeCat === "All" ? "Cross-Industry" : activeCat });
+    setModal("add");
+  };
+  const openEdit = (r) => {
+    setForm({ name:r.name, url:r.url, target:r.target, desc:r.desc, notes:r.notes||"", cat:r.cat, type:r.type });
+    setEditId(r.id);
+    setModal("edit");
+  };
+  const openDel = (id) => { setDelId(id); setModal("del"); };
+
+  const saveResource = () => {
+    if (!form.name.trim() || !form.url.trim()) return;
+    if (modal === "add") {
+      setAll(p => [...p, { ...form, id: "u" + Date.now() }]);
+      flash(`"${form.name}" added!`);
+    } else {
+      setAll(p => p.map(r => r.id === editId ? { ...r, ...form } : r));
+      flash(`"${form.name}" updated.`);
+    }
+    setModal(null);
+  };
+
+  const deleteResource = () => {
+    const name = all.find(r => r.id === delId)?.name;
+    setAll(p => p.filter(r => r.id !== delId));
+    setModal(null);
+    flash(`"${name}" removed.`, "del");
+  };
+
+  // ── Styles ──────────────────────────────────────────────────────────────────
+  const F = "'DM Sans', sans-serif";
+  const NAVY = "#07103A";
+  const GOLD = "#D4AF37";
+
+  const style = {
+    root:     { fontFamily:F, minHeight:"100vh", background:"#EDF0FA", color:"#1A1D3C" },
+    hdr:      { background:`linear-gradient(135deg, ${NAVY} 0%, #162060 100%)`, color:"white", padding:"22px 28px 18px" },
+    hdrRow:   { maxWidth:1200, margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:10 },
+    htitle:   { fontFamily:"'Syne',sans-serif", fontSize:22, fontWeight:800, letterSpacing:"-0.4px" },
+    hsub:     { fontSize:12, color:"#7B92C2", marginTop:3 },
+    addBtn:   { background:GOLD, color:NAVY, border:"none", borderRadius:8, padding:"9px 18px", fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:13, cursor:"pointer", whiteSpace:"nowrap", letterSpacing:"0.2px" },
+    ctrl:     { background:"white", borderBottom:"1px solid #E2E8F0", padding:"13px 28px" },
+    ctrlIn:   { maxWidth:1200, margin:"0 auto" },
+    srow:     { display:"flex", gap:10, marginBottom:13, flexWrap:"wrap" },
+    sWrap:    { position:"relative", flex:"1 1 200px" },
+    sIcon:    { position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", color:"#94A3B8", fontSize:13, pointerEvents:"none" },
+    sInput:   { width:"100%", padding:"8px 10px 8px 30px", border:"1.5px solid #E2E8F0", borderRadius:8, fontSize:13, fontFamily:F, outline:"none", boxSizing:"border-box" },
+    sel:      { padding:"8px 12px", border:"1.5px solid #E2E8F0", borderRadius:8, fontSize:13, fontFamily:F, background:"white", color:"#374151", cursor:"pointer" },
+    tabs:     { display:"flex", gap:7, overflowX:"auto", paddingBottom:2, scrollbarWidth:"none" },
+    main:     { maxWidth:1200, margin:"0 auto", padding:"20px 28px 48px" },
+    grid:     { display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(295px,1fr))", gap:14 },
+    card:     (ci) => ({ background:"white", borderRadius:12, padding:"16px 18px", boxShadow:"0 1px 3px rgba(0,0,0,0.06)", border:"1px solid #E8ECF4", display:"flex", flexDirection:"column", gap:9, borderTop:`3px solid ${ci.color}` }),
+    chead:    { display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:8 },
+    cname:    { fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, color:NAVY, lineHeight:1.3, flex:1 },
+    cbtns:    { display:"flex", gap:4, flexShrink:0 },
+    eBtn:     { background:"#F1F5F9", border:"none", borderRadius:5, padding:"3px 8px", fontSize:11, cursor:"pointer", color:"#64748B" },
+    dBtn:     { background:"#FFF5F5", border:"none", borderRadius:5, padding:"3px 8px", fontSize:11, cursor:"pointer", color:"#EF4444" },
+    badges:   { display:"flex", gap:5, flexWrap:"wrap" },
+    badge:    (bg, tx) => ({ background:bg, color:tx, fontSize:11, fontWeight:600, padding:"2px 8px", borderRadius:10 }),
+    cdesc:    { fontSize:12.5, color:"#475569", lineHeight:1.5, flexGrow:1 },
+    ctgt:     { fontSize:12, color:"#64748B", background:"#F8FAFC", borderRadius:6, padding:"5px 9px" },
+    cnotes:   { fontSize:12, color:"#6B21A8", background:"#F5F3FF", borderRadius:6, padding:"5px 9px", fontStyle:"italic" },
+    clink:    { fontSize:12, color:"#2563EB", textDecoration:"none", fontWeight:500 },
+    overlay:  { position:"fixed", inset:0, background:"rgba(0,0,0,0.55)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, padding:20 },
+    mbox:     { background:"white", borderRadius:16, padding:26, width:"100%", maxWidth:480, maxHeight:"90vh", overflowY:"auto", boxShadow:"0 20px 60px rgba(0,0,0,0.3)" },
+    mbox2:    { background:"white", borderRadius:16, padding:26, width:"100%", maxWidth:360, boxShadow:"0 20px 60px rgba(0,0,0,0.3)" },
+    mtitle:   { fontFamily:"'Syne',sans-serif", fontSize:17, fontWeight:800, marginBottom:18, color:NAVY },
+    lbl:      { display:"block", fontSize:12, fontWeight:600, color:"#374151", marginBottom:4 },
+    mi:       { width:"100%", padding:"8px 10px", border:"1.5px solid #E2E8F0", borderRadius:7, fontSize:13, fontFamily:F, outline:"none", boxSizing:"border-box" },
+    mta:      { width:"100%", padding:"8px 10px", border:"1.5px solid #E2E8F0", borderRadius:7, fontSize:13, fontFamily:F, outline:"none", boxSizing:"border-box", resize:"vertical" },
+    msel:     { width:"100%", padding:"8px 10px", border:"1.5px solid #E2E8F0", borderRadius:7, fontSize:13, fontFamily:F, background:"white", outline:"none" },
+    mfoot:    { display:"flex", gap:10, justifyContent:"flex-end", marginTop:20 },
+    cancel:   { padding:"9px 18px", background:"#F1F5F9", border:"none", borderRadius:8, fontSize:13, cursor:"pointer", fontFamily:F, color:"#374151" },
+    submit:   { padding:"9px 18px", background:NAVY, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:"pointer", fontFamily:"'Syne',sans-serif", fontWeight:700 },
+    toastBox: (v) => ({ position:"fixed", bottom:20, right:20, background: v==="del"?"#374151":NAVY, color:"white", padding:"11px 18px", borderRadius:10, fontSize:13, boxShadow:"0 4px 20px rgba(0,0,0,0.25)", zIndex:2000, borderLeft:`4px solid ${v==="del"?"#EF4444":GOLD}`, fontFamily:F }),
+  };
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+  return (
+    <div style={style.root}>
+
+      {/* HEADER */}
+      <div style={style.hdr}>
+        <div style={style.hdrRow}>
+          <div>
+            <div style={style.htitle}>
+              <span style={{ color: GOLD }}>BSAG</span> Opportunity Resource List
+            </div>
+            <div style={style.hsub}>
+              {all.length} resources · Emory Black Student Athlete Group
+            </div>
+          </div>
+          <button style={style.addBtn} onClick={openAdd}>+ Add Resource</button>
+        </div>
+      </div>
+
+      {/* CONTROLS */}
+      <div style={style.ctrl}>
+        <div style={style.ctrlIn}>
+          <div style={style.srow}>
+            <div style={style.sWrap}>
+              <span style={style.sIcon}>🔍</span>
+              <input
+                style={style.sInput}
+                value={q}
+                onChange={e => setQ(e.target.value)}
+                placeholder="Search by name, audience, or description…"
+              />
+            </div>
+            <select style={style.sel} value={activeType} onChange={e => setType(e.target.value)}>
+              <option value="All">All Types</option>
+              {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          <div style={style.tabs}>
+            {[{ key:"All", label:"All", color: NAVY }, ...CATS].map(c => (
+              <button
+                key={c.key}
+                onClick={() => setCat(c.key)}
+                style={{
+                  padding: "5px 13px", borderRadius: 20, border: "none", cursor: "pointer",
+                  fontFamily: F, fontSize: 12.5, fontWeight: 500, whiteSpace: "nowrap",
+                  background: activeCat === c.key ? c.color : "#F1F5F9",
+                  color: activeCat === c.key ? "white" : "#64748B",
+                  transition: "all 0.15s",
+                }}
+              >
+                {c.label}{" "}
+                <span style={{ opacity: 0.75, fontSize: 11 }}>
+                  ({c.key === "All" ? all.length : all.filter(r => r.cat === c.key).length})
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* MAIN GRID */}
+      <div style={style.main}>
+        {filtered.length === 0 ? (
+          <div style={{ textAlign:"center", padding:60, color:"#94A3B8" }}>
+            <div style={{ fontSize:36 }}>🔍</div>
+            <div style={{ marginTop:10, fontSize:15, fontWeight:500 }}>No resources match your filters.</div>
+            <div style={{ fontSize:13, marginTop:6 }}>Try adjusting your search or clearing the category/type filters.</div>
+          </div>
+        ) : (
+          <div style={style.grid}>
+            {filtered.map(r => {
+              const ci = catMeta(r.cat);
+              const tc = TC[r.type] || TC.Program;
+              return (
+                <div key={r.id} style={style.card(ci)}>
+                  <div style={style.chead}>
+                    <div style={style.cname}>{r.name}</div>
+                    <div style={style.cbtns}>
+                      <button style={style.eBtn} onClick={() => openEdit(r)} title="Edit">✏️</button>
+                      <button style={style.dBtn} onClick={() => openDel(r.id)} title="Remove">🗑</button>
+                    </div>
+                  </div>
+
+                  <div style={style.badges}>
+                    <span style={style.badge(tc.bg, tc.tx)}>{r.type}</span>
+                    <span style={style.badge(ci.light, ci.color)}>{r.cat}</span>
+                  </div>
+
+                  <div style={style.cdesc}>{r.desc}</div>
+
+                  <div style={style.ctgt}>
+                    <span style={{ fontWeight:500 }}>👥 Target: </span>{r.target}
+                  </div>
+
+                  {r.notes && (
+                    <div style={style.cnotes}>📝 {r.notes}</div>
+                  )}
+
+                  <a href={r.url} target="_blank" rel="noopener noreferrer" style={style.clink}>
+                    🔗 Visit Program →
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div style={{ textAlign:"center", marginTop:22, fontSize:12, color:"#94A3B8" }}>
+          Showing {filtered.length} of {all.length} resources
+        </div>
+      </div>
+
+      {/* ADD / EDIT MODAL */}
+      {(modal === "add" || modal === "edit") && (
+        <div style={style.overlay} onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
+          <div style={style.mbox}>
+            <div style={style.mtitle}>
+              {modal === "add" ? "＋ Add New Resource" : "✏️ Edit Resource"}
+            </div>
+
+            <div style={{ display:"grid", gap:12 }}>
+              <div>
+                <label style={style.lbl}>Program Name *</label>
+                <input style={style.mi} value={form.name} onChange={e => setForm(f => ({...f, name:e.target.value}))} placeholder="e.g., Goldman Sachs Possibilities Series" />
+              </div>
+              <div>
+                <label style={style.lbl}>URL *</label>
+                <input style={style.mi} value={form.url} onChange={e => setForm(f => ({...f, url:e.target.value}))} placeholder="https://…" />
+              </div>
+              <div>
+                <label style={style.lbl}>Target Audience</label>
+                <input style={style.mi} value={form.target} onChange={e => setForm(f => ({...f, target:e.target.value}))} placeholder="e.g., Underrepresented undergraduate sophomores" />
+              </div>
+              <div>
+                <label style={style.lbl}>Description</label>
+                <textarea style={style.mta} rows={3} value={form.desc} onChange={e => setForm(f => ({...f, desc:e.target.value}))} placeholder="Brief description of the program…" />
+              </div>
+              <div>
+                <label style={style.lbl}>Notes (optional)</label>
+                <input style={style.mi} value={form.notes} onChange={e => setForm(f => ({...f, notes:e.target.value}))} placeholder="e.g., Great for freshmen · Deadline: Nov 1 · Recommended" />
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                <div>
+                  <label style={style.lbl}>Category</label>
+                  <select style={style.msel} value={form.cat} onChange={e => setForm(f => ({...f, cat:e.target.value}))}>
+                    {CATS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={style.lbl}>Type</label>
+                  <select style={style.msel} value={form.type} onChange={e => setForm(f => ({...f, type:e.target.value}))}>
+                    {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div style={style.mfoot}>
+              <button style={style.cancel} onClick={() => setModal(null)}>Cancel</button>
+              <button
+                style={{ ...style.submit, opacity: (!form.name.trim() || !form.url.trim()) ? 0.5 : 1 }}
+                onClick={saveResource}
+                disabled={!form.name.trim() || !form.url.trim()}
+              >
+                {modal === "add" ? "Add Resource" : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE MODAL */}
+      {modal === "del" && (
+        <div style={style.overlay} onClick={e => { if (e.target === e.currentTarget) setModal(null); }}>
+          <div style={style.mbox2}>
+            <div style={style.mtitle}>Remove Resource?</div>
+            <div style={{ fontSize:13.5, color:"#64748B", marginBottom:20, lineHeight:1.6 }}>
+              Remove <strong>"{all.find(r => r.id === delId)?.name}"</strong> from the list? This cannot be undone.
+            </div>
+            <div style={style.mfoot}>
+              <button style={style.cancel} onClick={() => setModal(null)}>Cancel</button>
+              <button style={{ ...style.submit, background:"#EF4444" }} onClick={deleteResource}>Remove</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TOAST */}
+      {toast && (
+        <div style={style.toastBox(toast.v)}>{toast.msg}</div>
+      )}
+    </div>
+  );
+}
+
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<BSAGResources />);
+  </script>
+
+</body>
+</html>
